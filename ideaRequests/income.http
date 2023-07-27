@@ -1,0 +1,7 @@
+### Send POST request with json body
+POST http://localhost:12345/income
+Content-Type: application/json
+
+{
+  "amount": 11.1
+}

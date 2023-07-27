@@ -1,0 +1,85 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Controller;
+
+use App\Transfer\LoginResponseTransfer;
+use DateInterval;
+use DateTimeImmutable;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+
+abstract class AbstractTrackerController extends AbstractController
+{
+    private const SESSION_DURATION_DAYS = 1;
+
+    private const REQUIRED_SESSION_FIELDS = ["userId", "userEmail", "sessionStart"];
+
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     *
+     * @return bool
+     */
+    protected function isUserSessionValid(Request $request): bool
+    {
+        if ($request->getSession()->get("user") === null) {
+            return false;
+        }
+        $userSessionData = $request->getSession()->get("user");
+
+        foreach (self::REQUIRED_SESSION_FIELDS as $requiredSessionField) {
+            if (!isset($userSessionData[$requiredSessionField])) {
+                return false;
+            }
+        }
+
+        $now = new DatetimeImmutable();
+        $interval = new DateInterval("P" . self::SESSION_DURATION_DAYS . "D");
+
+        if ($userSessionData['sessionStart'] < $now->sub($interval)) {
+            $this->deleteUserFromSession($request);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @param \App\Transfer\LoginResponseTransfer $loginResponse
+     *
+     * @return void
+     */
+    protected function saveUserToSession(Request $request, LoginResponseTransfer $loginResponse): void
+    {
+        session_regenerate_id();
+        $session = $request->getSession();
+        $sessionData = [
+            'userId' => $loginResponse->user->getId(),
+            'userEmail' => $loginResponse->user->getEmail(),
+            'sessionStart' => $loginResponse->now
+        ];
+        $session->set("user", $sessionData);
+    }
+
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     *
+     * @return int
+     */
+    protected function getUserIdFromSession(Request $request): int
+    {
+        return (int) $request->getSession()->get("user")["userId"];
+    }
+
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     *
+     * @return void
+     */
+    protected function deleteUserFromSession(Request $request): void
+    {
+        $request->getSession()->set("user", null);
+    }
+}

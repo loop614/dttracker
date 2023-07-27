@@ -1,0 +1,13 @@
+### GET request with parameter
+GET http://localhost:12345/expenses?start=0&size=10
+Accept: application/json
+
+### Send POST request with json body
+POST http://localhost:12345/expense
+Content-Type: application/json
+
+{
+  "description": "2description",
+  "amount": 1.1,
+  "categoryId": 4
+}

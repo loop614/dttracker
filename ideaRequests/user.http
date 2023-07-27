@@ -1,0 +1,27 @@
+
+### Send POST request with json body
+POST http://localhost:12345/register
+Content-Type: application/json
+
+{
+  "email": "example@example.com",
+  "password": "password"
+}
+
+
+### Send POST request with json body
+POST http://localhost:12345/login
+Content-Type: application/json
+
+{
+  "email": "example@example.com",
+  "password": "password"
+}
+
+
+
+### Send POST request with json body
+POST http://localhost:12345/logout
+Content-Type: application/json
+{
+}
