@@ -14,9 +14,11 @@ final class CategoryService implements CategoryServiceInterface
 {
     /**
      * @param \Doctrine\ORM\EntityManagerInterface $entityManager
+     * @param \App\Services\UserServiceInterface $userService
      */
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
+        private readonly UserServiceInterface   $userService,
     ) {
     }
 
@@ -29,8 +31,8 @@ final class CategoryService implements CategoryServiceInterface
     {
         $category = new Category();
 
-        $category->setUser($categoryTransfer->user);
-        $category->setName($categoryTransfer->name);
+        $category->setUser($this->userService->getUserById($categoryTransfer->getUserId()));
+        $category->setName($categoryTransfer->getName());
 
         $this->entityManager->persist($category);
         $this->entityManager->flush();
@@ -48,12 +50,12 @@ final class CategoryService implements CategoryServiceInterface
     {
         return $this->entityManager
             ->getRepository(Category::class)
-            ->createQueryBuilder('c')
-            ->innerJoin('c.user', 'u')
+            ->createQueryBuilder('cqb')
+            ->innerJoin('cqb.user', 'u')
             ->where('u.id = :user_id')
             ->setParameters(['user_id' => $userTransfer->getId()])
-            ->setFirstResult($paginateTransfer->start)
-            ->setMaxResults($paginateTransfer->size)
+            ->setFirstResult($paginateTransfer->getStart())
+            ->setMaxResults($paginateTransfer->getSize())
             ->getQuery()
             ->getArrayResult();
     }

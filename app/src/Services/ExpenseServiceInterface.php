@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Entity\Expense;
+use App\Transfer\ExpenseFilterTransfer;
 use App\Transfer\ExpenseTransfer;
 use App\Transfer\PaginateTransfer;
 use App\Transfer\UserTransfer;
@@ -25,4 +26,15 @@ interface ExpenseServiceInterface
      * @return array
      */
     public function getExpensesByUser(UserTransfer $userTransfer, PaginateTransfer $paginateTransfer): array;
+
+    /**
+     * @param \App\Transfer\ExpenseFilterTransfer $expenseFilterTransfer
+     * @param \App\Transfer\PaginateTransfer $paginateTransfer
+     *
+     * @return array
+     */
+    public function filter(
+        ExpenseFilterTransfer $expenseFilterTransfer,
+        PaginateTransfer $paginateTransfer
+    ): array;
 }

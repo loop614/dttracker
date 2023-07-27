@@ -18,6 +18,7 @@ Content-Type: application/json
   "password": "password"
 }
 
+> {% client.global.set("auth_token", response.body.json.token); %}
 
 
 ### Send POST request with json body

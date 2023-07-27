@@ -1,11 +1,11 @@
 ### GET request with parameter
-GET http://localhost:12345/categories?start=0&size=10
+GET http://localhost:12345/api/categories?start=0&size=10
 Accept: application/json
 
 ### Send POST request with json body
-POST http://localhost:12345/category
+POST http://localhost:12345/api/category
 Content-Type: application/json
 
 {
-  "name": "milk"
+  "name": "music"
 }

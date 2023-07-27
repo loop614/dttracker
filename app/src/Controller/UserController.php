@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Core\Controller\AbstractCoreController;
 use App\Services\UserServiceInterface;
 use App\Transfer\UserTransfer;
 use App\Validator\ValidatorFactoryInterface;
@@ -11,7 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class UserController extends AbstractTrackerController
+class UserController extends AbstractCoreController
 {
     /**
      * @param \App\Validator\ValidatorFactory $validatorFactory
@@ -38,10 +39,12 @@ class UserController extends AbstractTrackerController
             throw new BadRequestHttpException();
         }
 
-        $userTransfer = new UserTransfer($requestBody["email"], $requestBody["password"]);
+        $userTransfer = new UserTransfer();
+        $userTransfer->setEmail($requestBody["email"]);
+        $userTransfer->setPassword($requestBody["password"]);
         $this->userService->create($userTransfer);
 
-        return new JsonResponse(["data" => true]);
+        return new JsonResponse(["result" => "success"]);
     }
 
     /**
@@ -59,14 +62,16 @@ class UserController extends AbstractTrackerController
             throw new BadRequestHttpException();
         }
 
-        $userTransfer = new UserTransfer($requestBody["email"], $requestBody["password"]);
+        $userTransfer = new UserTransfer();
+        $userTransfer->setEmail($requestBody["email"]);
+        $userTransfer->setPassword($requestBody["password"]);
         $loginResponse = $this->userService->login($userTransfer);
         if ($loginResponse->hasErrors()) {
             throw new BadRequestHttpException();
         }
         $this->saveUserToSession($request, $loginResponse);
 
-        return new JsonResponse(["data" => true]);
+        return new JsonResponse(["result" => "success", "token" => $loginResponse->getUser()->getToken()]);
     }
 
     /**
@@ -78,6 +83,6 @@ class UserController extends AbstractTrackerController
     {
         $this->deleteUserFromSession($request);
 
-        return new JsonResponse(["data" => true]);
+        return new JsonResponse(["result" => "success"]);
     }
 }

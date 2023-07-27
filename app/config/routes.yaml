@@ -17,26 +17,51 @@ app_logout:
     controller: App\Controller\UserController::logout
 
 category_add:
-    path: /category
+    path: /api/category
     controller: App\Controller\CategoryController::add
     methods: POST
 
 category_list:
-    path: /categories
+    path: /api/categories
     controller: App\Controller\CategoryController::list
     methods: GET
 
 expense_add:
-    path: /expense
+    path: /api/expense
     controller: App\Controller\ExpenseController::add
     methods: POST
 
+expense_list:
+    path: /api/expenses
+    controller: App\Controller\ExpenseController::list
+    methods: GET
+
+expense_filter:
+    path: /api/expenses/filter
+    controller: App\Controller\ExpenseController::filter
+    methods: GET
+
+expense_aggregate:
+    path: /api/expenses/aggregate
+    controller: App\Controller\ExpenseController::aggregate
+    methods: GET
+
 income_add:
-    path: /income
-    controller: App\Controller\IncomeController::income
+    path: /api/income
+    controller: App\Controller\IncomeController::add
     methods: POST
 
-expense_list:
-    path: /expenses
-    controller: App\Controller\ExpenseController::list
+income_list:
+    path: /api/incomes
+    controller: App\Controller\IncomeController::list
+    methods: GET
+
+income_filter:
+    path: /api/incomes
+    controller: App\Controller\IncomeController::filter
+    methods: GET
+
+income_aggregate:
+    path: /api/income/aggregate
+    controller: App\Controller\IncomeController::aggregate
     methods: GET

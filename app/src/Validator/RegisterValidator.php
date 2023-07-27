@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Validator;
 
+use App\Core\Validator\ValidatorInterface;
 use App\Services\UserServiceInterface;
 use App\Transfer\ValidationResponseTransfer;
 

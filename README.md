@@ -19,3 +19,6 @@ $ make init_app # while services from the first step are running
 ## Run unit tests
 - make init_test
 - make test
+
+## TODOs
+- merge expense and income to transaction

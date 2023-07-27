@@ -5,12 +5,19 @@ declare(strict_types=1);
 namespace App\DataFixtures;
 
 use App\Entity\Expense;
+use App\Services\ExpenseServiceInterface;
+use App\Transfer\ExpenseTransfer;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
 class ExpenseFixture extends Fixture implements DependentFixtureInterface
 {
+    /**
+     * @param \App\Services\ExpenseServiceInterface $expenseService
+     */
+    public function __construct(private readonly ExpenseServiceInterface $expenseService) {}
+
     /**
      * @param \Doctrine\Persistence\ObjectManager $manager
      *
@@ -20,14 +27,13 @@ class ExpenseFixture extends Fixture implements DependentFixtureInterface
     {
         $user = $this->getReference(UserFixtures::EXAMPLE_USER_REFERENCE);
         $category = $this->getReference(CategoryFixture::FOOD_CATEGORY);
-        $expense = new Expense();
-        $expense->setCategory($category);
-        $expense->setUser($user);
+        $expense = new ExpenseTransfer();
+        $expense->setCategoryId($category->getId());
+        $expense->setUserId($user->getUserId());
         $expense->setDescription("description");
         $expense->setAmount(150);
 
-        $manager->persist($expense);
-        $manager->flush();
+        $this->expenseService->create($expense);
     }
 
     /**

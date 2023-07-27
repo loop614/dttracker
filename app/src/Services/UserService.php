@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Transfer\LoginResponseTransfer;
 use App\Transfer\UserTransfer;
 use App\Entity\User;
+use DateTime;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -28,8 +29,8 @@ final class UserService implements UserServiceInterface
     public function create(UserTransfer $userTransfer): User
     {
         $user = new User();
-        $user->setEmail($userTransfer->email);
-        $passwordHash = hash('sha256', $userTransfer->password);
+        $user->setEmail($userTransfer->getEmail());
+        $passwordHash = hash('sha256', $userTransfer->getPassword());
         $user->setPassword($passwordHash);
 
         $this->entityManager->persist($user);
@@ -47,9 +48,9 @@ final class UserService implements UserServiceInterface
     {
         $query = $this->entityManager
             ->getRepository(User::class)
-            ->createQueryBuilder('pr')
-            ->select('pr')
-            ->where('pr.email = :email')
+            ->createQueryBuilder('uqb')
+            ->select('uqb')
+            ->where('uqb.email = :email')
             ->setParameters(['email' => $email])
             ->getQuery();
 
@@ -66,10 +67,10 @@ final class UserService implements UserServiceInterface
         $loginResponse = new LoginResponseTransfer();
         $user = $this->entityManager
             ->getRepository(User::class)
-            ->createQueryBuilder('pr')
-            ->select('pr')
-            ->where('pr.email = :email')
-            ->setParameters(['email' => $userTransfer->email])
+            ->createQueryBuilder('uqb')
+            ->select('uqb')
+            ->where('uqb.email = :email')
+            ->setParameters(['email' => $userTransfer->getEmail()])
             ->getQuery()
             ->getOneOrNullResult();
 
@@ -78,13 +79,15 @@ final class UserService implements UserServiceInterface
             return $loginResponse;
         }
 
-        if ($user->getPassword() !== hash('sha256', $userTransfer->password)) {
+        if ($user->getPassword() !== hash('sha256', $userTransfer->getPassword())) {
             $loginResponse->addError('Wrong password');
             return $loginResponse;
         }
 
-        $loginResponse->setUser($user);
+        $this->mapEntityToTransfer($user, $userTransfer = new UserTransfer());
+        $userTransfer->setToken(hash('sha256', (new DateTime())->format(getenv("DEFAULT_DATETIME_FORMAT"))));
         $loginResponse->setNow(new DateTimeImmutable());
+        $loginResponse->setUser($userTransfer);
 
         return $loginResponse;
     }
@@ -119,5 +122,17 @@ final class UserService implements UserServiceInterface
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
+    }
+
+    /**
+     * @param \App\Entity\User $userEntity
+     * @param \App\Transfer\UserTransfer $userTransfer
+     *
+     * @return void
+     */
+    private function mapEntityToTransfer(User $userEntity, UserTransfer $userTransfer): void
+    {
+        $userTransfer->setEmail($userEntity->getEmail());
+        $userTransfer->setId($userEntity->getId());
     }
 }

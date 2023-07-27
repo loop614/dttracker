@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Validator;
 
+use App\Core\Validator\ValidatorInterface;
 use App\Transfer\ValidationResponseTransfer;
 
 final class CategoryValidator implements ValidatorInterface

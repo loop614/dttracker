@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Services\CategoryServiceInterface;
+use App\Core\Controller\AbstractCoreController;
 use App\Services\ExpenseServiceInterface;
-use App\Services\UserServiceInterface;
+use App\Services\TokenServiceInterface;
+use App\Transfer\ExpenseFilterTransfer;
 use App\Transfer\ExpenseTransfer;
 use App\Transfer\PaginateTransfer;
 use App\Transfer\UserTransfer;
@@ -16,20 +17,18 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
-class ExpenseController extends AbstractTrackerController
+class ExpenseController extends AbstractCoreController
 {
     /**
      * @param \App\Validator\ValidatorFactory $validatorFactory
      * @param \App\Services\ExpenseService $expenseService
-     * @param \App\Services\CategoryService $categoryService
-     * @param \App\Services\UserService $userService
      */
     public function __construct(
+        private readonly TokenServiceInterface $tokenService,
         private readonly ValidatorFactoryInterface $validatorFactory,
         private readonly ExpenseServiceInterface $expenseService,
-        private readonly CategoryServiceInterface $categoryService,
-        private readonly UserServiceInterface $userService
     ) {
+        parent::__construct($this->tokenService);
     }
 
     /**
@@ -43,13 +42,9 @@ class ExpenseController extends AbstractTrackerController
             throw new AuthenticationCredentialsNotFoundException();
         }
 
-        $paginatorStart = (int) $request->get("start", 0);
-        $paginatorSize = (int) $request->get("size", 10);
-
-        $user = $this->userService->getUserById($this->getUserIdFromSession($request));
-        $userTransfer = new UserTransfer($user->getEmail(), $user->getPassword());
-        $userTransfer->setId($user->getId());
-        $paginateTransfer = new PaginateTransfer($paginatorStart, $paginatorSize);
+        $userTransfer = new UserTransfer();
+        $userTransfer->setId($this->getUserIdFromSession($request));
+        $paginateTransfer = $this->getPaginateTransfer($request);
         $expenses = $this->expenseService->getExpensesByUser($userTransfer, $paginateTransfer);
 
         return new JsonResponse(['expenses' => $expenses]);
@@ -71,12 +66,64 @@ class ExpenseController extends AbstractTrackerController
         if ($validationResponse->hasErrors()) {
             throw new BadRequestHttpException(message: $validationResponse->errors[0]);
         }
-        $user = $this->userService->getUserById($this->getUserIdFromSession($request));
-        $category = $this->categoryService->getCategoryById((int) $requestBody["categoryId"]);
-        $expenseTransfer = new ExpenseTransfer($requestBody["amount"], $requestBody["description"]);
-        $expenseTransfer->category = $category;
-        $expenseTransfer->user = $user;
+        $expenseTransfer = new ExpenseTransfer();
+        $expenseTransfer->setCategoryId($requestBody["categoryId"]);
+        $expenseTransfer->setUserId($this->getUserIdFromSession($request));
         $expenses = $this->expenseService->create($expenseTransfer);
+
+        return new JsonResponse(['expenses' => $expenses]);
+    }
+
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function filter(Request $request): JsonResponse
+    {
+        if (!$this->isUserSessionValid($request)) {
+            throw new AuthenticationCredentialsNotFoundException();
+        }
+
+        $requestBody = $request->toArray();
+        $validationResponse = $this->validatorFactory->createExpenseFilterValidator()->validate($requestBody);
+        if ($validationResponse->hasErrors()) {
+            throw new BadRequestHttpException(message: $validationResponse->errors[0]);
+        }
+        $expenseTransfer = new ExpenseFilterTransfer();
+        $expenseTransfer->setAmountGrater($requestBody["amount"]);
+        $expenseTransfer->setCategoryId((int) $requestBody["categoryId"]);
+        $expenseTransfer->setUserId($this->getUserIdFromSession($request));
+        $paginateTransfer = $this->getPaginateTransfer($request);
+        $expenses = $this->expenseService->filter($expenseTransfer, $paginateTransfer);
+
+        return new JsonResponse(['expenses' => $expenses]);
+    }
+
+
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function aggregate(Request $request): JsonResponse
+    {
+        if (!$this->isUserSessionValid($request)) {
+            throw new AuthenticationCredentialsNotFoundException();
+        }
+
+        $requestBody = $request->toArray();
+        $validationResponse = $this->validatorFactory->createExpenseFilterValidator()->validate($requestBody);
+        if ($validationResponse->hasErrors()) {
+            throw new BadRequestHttpException(message: $validationResponse->errors[0]);
+        }
+
+        $expenseTransfer = new ExpenseFilterTransfer();
+        $expenseTransfer->setAmountGrater($requestBody["amount"]);
+        $expenseTransfer->setCategoryId((int) $requestBody["categoryId"]);
+        $expenseTransfer->setUserId($this->getUserIdFromSession($request));
+        $paginateTransfer = $this->getPaginateTransfer($request);
+        $expenses = $this->expenseService->filter($expenseTransfer, $paginateTransfer);
 
         return new JsonResponse(['expenses' => $expenses]);
     }

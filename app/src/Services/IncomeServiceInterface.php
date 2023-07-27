@@ -24,5 +24,5 @@ interface IncomeServiceInterface
      *
      * @return array
      */
-    public function getIncomeByUser(UserTransfer $userTransfer, PaginateTransfer $paginateTransfer): array;
+    public function getIncomesByUser(UserTransfer $userTransfer, PaginateTransfer $paginateTransfer): array;
 }

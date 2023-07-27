@@ -30,16 +30,15 @@ final class IncomeService implements IncomeServiceInterface
     public function create(IncomeTransfer $expenseTransfer): Income
     {
         $expense = new Income();
-
-        $expense->setUser($expenseTransfer->user);
-        $expense->setCategory($expenseTransfer->category);
-        $expense->setAmount($expenseTransfer->amount);
-        $expense->setDescription($expenseTransfer->description);
+        $user = $this->userService->getUserById($expenseTransfer->getUserId());
+        $expense->setUser($user);
+        $expense->setAmount($expenseTransfer->getAmount());
+        $expense->setDescription($expenseTransfer->getDescription());
 
         $this->entityManager->persist($expense);
         $this->entityManager->flush();
 
-        $this->userService->updateBalance($expenseTransfer->user, -1 * $expense->getAmount());
+        $this->userService->updateBalance($user, $expenseTransfer->getAmount());
 
         return $expense;
     }
@@ -54,14 +53,13 @@ final class IncomeService implements IncomeServiceInterface
     {
         return $this->entityManager
             ->getRepository(Income::class)
-            ->createQueryBuilder('e')
-            ->select('e', 'c', 'u')
-            ->leftJoin('e.category', 'c')
-            ->leftJoin('e.user', 'u')
+            ->createQueryBuilder('iqb')
+            ->select('iqb', 'u')
+            ->leftJoin('iqb.user', 'u')
             ->where('u.id = :user_id')
             ->setParameters(['user_id' => $userTransfer->getId()])
-            ->setFirstResult($paginateTransfer->start)
-            ->setMaxResults($paginateTransfer->size)
+            ->setFirstResult($paginateTransfer->getStart())
+            ->setMaxResults($paginateTransfer->getSize())
             ->getQuery()
             ->getArrayResult();
     }

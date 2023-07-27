@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Transfer;
 
-use App\Entity\User;
 use DateTimeImmutable;
 
-final class LoginResponseTransfer implements TransferInterface
+final class LoginResponseTransfer
 {
     /**
      * @var string[]
@@ -20,9 +19,9 @@ final class LoginResponseTransfer implements TransferInterface
     public array $errors = [];
 
     /**
-     * @var \App\Entity\User
+     * @var \App\Transfer\UserTransfer
      */
-    public User $user;
+    public UserTransfer $user;
 
     /**
      * @var \DateTimeImmutable
@@ -51,17 +50,19 @@ final class LoginResponseTransfer implements TransferInterface
     }
 
     /**
-     * @return \App\Entity\User
+     * @return \App\Transfer\UserTransfer
      */
-    public function getUser(): User
+    public function getUser(): UserTransfer
     {
         return $this->user;
     }
 
     /**
-     * @param \App\Entity\User $user
+     * @param \App\Transfer\UserTransfer $user
+     *
+     * @return void
      */
-    public function setUser(User $user): void
+    public function setUser(UserTransfer $user): void
     {
         $this->user = $user;
     }

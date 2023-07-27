@@ -21,6 +21,10 @@ init_app:
 	$(TRACKERCONSOLE) doctrine:migrations:migrate
 	$(TRACKERCONSOLE) doctrine:fixtures:load
 
+migrate:
+	$(TRACKERCONSOLE) make:migration
+	$(TRACKERCONSOLE) doctrine:migrations:migrate
+
 init_test:
 	$(TRACKERCONSOLE) --env=test doctrine:database:create
 	$(TRACKERCONSOLE) --env=test doctrine:schema:create
@@ -28,11 +32,14 @@ init_test:
 test:
 	$(TRACKER) ./vendor/bin/phpunit
 
-fixtures:
-	$(TRACKERCONSOLE) doctrine:fixtures:load
+temp:
+	$(TRACKER) php bin/console lexik:jwt:generate-keypair
+
+drop_db:
+	$(TRACKERCONSOLE)
 
 composer_install:
-	$(TRACKERCOMPOSER)
+	$(TRACKERCOMPOSER) require miladrahimi/php-jwt "2.*"
 
 cache:
 	$(TRACKERCOMPOSER) clear-cache
@@ -44,8 +51,6 @@ cache:
 skeleton:
 	$(TRACKERCOMPOSER) create-project symfony/skeleton:"6.4.x-dev" .
 
-temp:
-	$(TRACKERCONSOLE)
 
 sniffer:
 	$(TRACKER) vendor/bin/phpcs -p --extensions=php src/

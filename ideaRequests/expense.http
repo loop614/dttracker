@@ -1,13 +1,44 @@
 ### GET request with parameter
-GET http://localhost:12345/expenses?start=0&size=10
+GET http://localhost:12345/api/expenses?start=0&size=10
 Accept: application/json
+Authorization: Bearer {{auth_token}}
 
 ### Send POST request with json body
-POST http://localhost:12345/expense
+POST http://localhost:12345/api/expense
 Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
 
 {
   "description": "2description",
   "amount": 1.1,
   "categoryId": 4
+}
+
+
+### Send POST request with json body
+GET http://localhost:12345/api/expenses/filter
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "categoryId": 1,
+  "amountGreater": 10,
+  "amountLess": 100000,
+  "startDate": "2023-07-01",
+  "endDate": "2023-08-01"
+}
+
+
+### Send POST request with json body
+GET http://localhost:12345/api/expenses/aggregate
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "categoryId": 1,
+  "amountGreater": 1000,
+  "amountLess": 10000,
+  "startDate": "2023-07-27",
+  "endDate": "2023-09-01"
 }

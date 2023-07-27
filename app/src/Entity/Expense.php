@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Entity\Traits\HasTimestamps;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
@@ -15,6 +16,8 @@ use Doctrine\ORM\Mapping\Table;
 #[Entity, Table('expense')]
 class Expense
 {
+    use HasTimestamps;
+
     #[Id, Column, GeneratedValue]
     private int $id;
 
@@ -28,7 +31,7 @@ class Expense
     private User $user;
 
     #[ManyToOne(inversedBy: 'expenses')]
-    private ?Category $category;
+    private Category $category;
 
     /**
      * @return int
@@ -87,17 +90,17 @@ class Expense
     }
 
     /**
-     * @return \App\Entity\Category|null
+     * @return \App\Entity\Category
      */
-    public function getCategory(): ?Category
+    public function getCategory(): Category
     {
         return $this->category;
     }
 
     /**
-     * @param \App\Entity\Category|null $category
+     * @param \App\Entity\Category $category
      */
-    public function setCategory(?Category $category): void
+    public function setCategory(Category $category): void
     {
         $this->category = $category;
     }

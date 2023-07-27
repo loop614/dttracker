@@ -4,18 +4,59 @@ declare(strict_types=1);
 
 namespace App\Transfer;
 
-final class UserTransfer implements TransferInterface
+final class UserTransfer
 {
-    private readonly int $id;
+    private int $id;
+    private string $email;
+    private string $password;
+    private string $token;
+
+    /**
+     * @return string
+     */
+    public function getToken(): string
+    {
+        return $this->token;
+    }
+
+    /**
+     * @param string $token
+     */
+    public function setToken(string $token): void
+    {
+        $this->token = $token;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
 
     /**
      * @param string $email
+     */
+    public function setEmail(string $email): void
+    {
+        $this->email = $email;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    /**
      * @param string $password
      */
-    public function __construct(
-        public readonly string $email,
-        public readonly string $password,
-    ) {
+    public function setPassword(string $password): void
+    {
+        $this->password = $password;
     }
 
     /**

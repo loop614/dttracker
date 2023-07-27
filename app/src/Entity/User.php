@@ -14,9 +14,10 @@ use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[Entity, Table('tracker_user')]
-class User implements PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[Id, Column, GeneratedValue]
     private int $id;
@@ -115,5 +116,19 @@ class User implements PasswordAuthenticatedUserInterface
     public function addIncome(Income $expense): void
     {
         $this->incomes->add($expense);
+    }
+
+    public function getRoles(): array
+    {
+        return ["USER_ROLE"];
+    }
+
+    public function eraseCredentials(): void
+    {
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->email;
     }
 }

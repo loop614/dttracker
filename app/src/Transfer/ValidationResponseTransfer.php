@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Transfer;
 
-final class ValidationResponseTransfer implements TransferInterface
+final class ValidationResponseTransfer
 {
     public array $errors = [];
 

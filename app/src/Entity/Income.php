@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Entity\Traits\HasTimestamps;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
@@ -15,6 +16,8 @@ use Doctrine\ORM\Mapping\Table;
 #[Entity, Table('income')]
 class Income
 {
+    use HasTimestamps;
+
     #[Id, Column, GeneratedValue]
     private int $id;
 

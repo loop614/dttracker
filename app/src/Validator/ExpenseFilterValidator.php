@@ -7,9 +7,15 @@ namespace App\Validator;
 use App\Core\Validator\ValidatorInterface;
 use App\Transfer\ValidationResponseTransfer;
 
-final class ExpenseValidator implements ValidatorInterface
+final class ExpenseFilterValidator implements ValidatorInterface
 {
-    private const REQUIRED_FIELDS = ["description", "amount", "categoryId"];
+    private const ANY_OF_REQUIRED_FIELDS = [
+        "start_date",
+        "end_date",
+        "amount_greater",
+        "amount_less",
+        "categoryId"
+    ];
 
     /**
      * @param array $input
@@ -19,12 +25,12 @@ final class ExpenseValidator implements ValidatorInterface
     public function validate(array $input): ValidationResponseTransfer
     {
         $validationResponse = new ValidationResponseTransfer();
-        foreach (self::REQUIRED_FIELDS as $requiredField) {
-            if (!isset($input[$requiredField])) {
-                $validationResponse->addError($requiredField . " needs to be set");
+        foreach (self::ANY_OF_REQUIRED_FIELDS as $requiredField) {
+            if (in_array($requiredField, $input)) {
                 return $validationResponse;
             }
         }
+        $validationResponse->addError('There should be atleast one filter paramether');
 
         return $validationResponse;
     }
