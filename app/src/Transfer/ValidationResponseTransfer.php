@@ -6,7 +6,7 @@ namespace App\Transfer;
 
 final class ValidationResponseTransfer
 {
-    public array $errors = [];
+    private array $errors = [];
 
     /**
      * @param string $error
@@ -16,6 +16,14 @@ final class ValidationResponseTransfer
     public function addError(string $error): void
     {
         $this->errors[] = $error;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getErrors(): array
+    {
+        return $this->errors;
     }
 
     /**

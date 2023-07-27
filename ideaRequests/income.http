@@ -1,13 +1,11 @@
 ### GET request with parameter
 GET http://localhost:12345/api/incomes?start=0&size=10
 Accept: application/json
-Authorization: Bearer {{auth_token}}
 
 
 ### Send POST request with json body
 POST http://localhost:12345/api/income
 Content-Type: application/json
-Authorization: Bearer {{auth_token}}
 
 {
   "amount": 11.1,
@@ -15,27 +13,24 @@ Authorization: Bearer {{auth_token}}
 }
 
 
-### Send POST request with json body
+### Send GET request with json body
 GET http://localhost:12345/api/income/filter
 Content-Type: application/json
-Authorization: Bearer {{auth_token}}
 
 {
-  "amountGreater": 10,
-  "amountLess": 100000,
-  "startDate": "2023-07-01",
-  "endDate": "2023-08-01"
+  "amount_greater": 1000,
+  "amount_less": 10000,
+  "start_date": "2023-07-27",
+  "end_date": "2023-09-01"
 }
-
 
 ### Send POST request with json body
 GET http://localhost:12345/api/income/aggregate
 Content-Type: application/json
-Authorization: Bearer {{auth_token}}
 
 {
-  "amountGreater": 1000,
-  "amountLess": 10000,
-  "startDate": "2023-07-27",
-  "endDate": "2023-09-01"
+  "amount_greater": 1000,
+  "amount_less": 10000,
+  "start_date": "2023-07-27",
+  "end_date": "2023-09-01"
 }

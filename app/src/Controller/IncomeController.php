@@ -6,7 +6,7 @@ namespace App\Controller;
 
 use App\Core\Controller\AbstractCoreController;
 use App\Services\IncomeServiceInterface;
-use App\Transfer\ExpenseFilterTransfer;
+use App\Transfer\IncomeFilterTransfer;
 use App\Transfer\incomeTransfer;
 use App\Transfer\UserTransfer;
 use App\Validator\ValidatorFactoryInterface;
@@ -34,10 +34,6 @@ class IncomeController extends AbstractCoreController
      */
     public function list(Request $request): JsonResponse
     {
-        if ($this->isUserAuthenticated((string) $request->headers->get("authorization"))) {
-            throw new AuthenticationCredentialsNotFoundException();
-        }
-
         if (!$this->isUserSessionValid($request)) {
             throw new AuthenticationCredentialsNotFoundException();
         }
@@ -64,7 +60,7 @@ class IncomeController extends AbstractCoreController
         $requestArray = $request->toArray();
         $validationResponse = $this->validatorFactory->createIncomeValidator()->validate($requestArray);
         if ($validationResponse->hasErrors()) {
-            throw new BadRequestHttpException(message: $validationResponse->errors[0]);
+            throw new BadRequestHttpException(message: $validationResponse->getErrors()[0]);
         }
         $incomeTransfer = new IncomeTransfer();
         $incomeTransfer->setAmount($requestArray["amount"]);
@@ -87,13 +83,11 @@ class IncomeController extends AbstractCoreController
         }
 
         $requestBody = $request->toArray();
-        $validationResponse = $this->validatorFactory->createExpenseFilterValidator()->validate($requestBody);
+        $validationResponse = $this->validatorFactory->createIncomeFilterValidator()->validate($requestBody);
         if ($validationResponse->hasErrors()) {
-            throw new BadRequestHttpException(message: $validationResponse->errors[0]);
+            throw new BadRequestHttpException($validationResponse->getErrors()[0]);
         }
-        $incomeTransfer = new IncomeFilterTransfer();
-        $incomeTransfer->setAmountGrater($requestBody["amount"]);
-        $incomeTransfer->setCategoryId((int) $requestBody["categoryId"]);
+        $incomeTransfer = $this->mapIncomeFilterTransfer($requestBody);
         $incomeTransfer->setUserId($this->getUserIdFromSession($request));
         $paginateTransfer = $this->getPaginateTransfer($request);
         $incomes = $this->incomeService->filter($incomeTransfer, $paginateTransfer);
@@ -115,16 +109,29 @@ class IncomeController extends AbstractCoreController
         $requestBody = $request->toArray();
         $validationResponse = $this->validatorFactory->createExpenseFilterValidator()->validate($requestBody);
         if ($validationResponse->hasErrors()) {
-            throw new BadRequestHttpException(message: $validationResponse->errors[0]);
+            throw new BadRequestHttpException(message: $validationResponse->getErrors()[0]);
         }
 
-        $incomeTransfer = new IncomeFilterTransfer();
-        $incomeTransfer->setAmountGrater($requestBody["amount"]);
-        $incomeTransfer->setCategoryId((int) $requestBody["categoryId"]);
+        $incomeTransfer = $this->mapIncomeFilterTransfer($requestBody);
         $incomeTransfer->setUserId($this->getUserIdFromSession($request));
-        $paginateTransfer = $this->getPaginateTransfer($request);
-        $incomes = $this->incomeService->filter($incomeTransfer, $paginateTransfer);
+        $incomeAggregate = $this->incomeService->aggregate($incomeTransfer);
 
-        return new JsonResponse(['incomes' => $incomes]);
+        return new JsonResponse(['income_aggregate' => $incomeAggregate]);
+    }
+
+    /**
+     * @param array $requestBody
+     *
+     * @return \App\Transfer\IncomeFilterTransfer
+     */
+    private function mapIncomeFilterTransfer(array $requestBody): IncomeFilterTransfer
+    {
+        $incomeTransfer = new IncomeFilterTransfer();
+        $incomeTransfer->setAmountGrater($requestBody["amount_greater"] ?? null);
+        $incomeTransfer->setAmountLess($requestBody["amount_less"] ?? null);
+        $incomeTransfer->setEndDate($requestBody["end_date"] ?? null);
+        $incomeTransfer->setStartDate($requestBody["start_date"] ?? null);
+
+        return $incomeTransfer;
     }
 }

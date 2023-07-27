@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Core\Controller;
 
-use App\Services\TokenServiceInterface;
 use App\Transfer\LoginResponseTransfer;
 use App\Transfer\PaginateTransfer;
 use DateInterval;
@@ -17,18 +16,6 @@ abstract class AbstractCoreController extends AbstractController
     private const SESSION_DURATION_DAYS = 1;
 
     private const REQUIRED_SESSION_FIELDS = ["userId", "userEmail", "sessionStart"];
-
-    public function __construct(private readonly TokenServiceInterface $tokenService) {}
-
-    /**
-     * @param string|null $token
-     *
-     * @return bool
-     */
-    protected function isUserAuthenticated(?string $token): bool
-    {
-        return $this->tokenService->verify($token);
-    }
 
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request

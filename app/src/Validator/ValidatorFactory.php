@@ -58,4 +58,12 @@ final class ValidatorFactory implements ValidatorFactoryInterface
     {
         return new ExpenseFilterValidator();
     }
+
+    /**
+     * @return \App\Core\Validator\ValidatorInterface
+     */
+    public function createIncomeFilterValidator(): ValidatorInterface
+    {
+        return new IncomeFilterValidator();
+    }
 }

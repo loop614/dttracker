@@ -22,3 +22,4 @@ $ make init_app # while services from the first step are running
 
 ## TODOs
 - merge expense and income to transaction
+- add categories to incomes

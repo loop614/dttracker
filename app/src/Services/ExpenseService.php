@@ -101,6 +101,28 @@ final class ExpenseService implements ExpenseServiceInterface
 
     /**
      * @param \App\Transfer\ExpenseFilterTransfer $expenseFilterTransfer
+     *
+     * @return array
+     */
+    public function aggregate(ExpenseFilterTransfer $expenseFilterTransfer): array
+    {
+        $query =  $this->entityManager
+            ->getRepository(Expense::class)
+            ->createQueryBuilder('eqb')
+            ->select('sum(eqb.amount) as amount_sum', 'eqb', 'u')
+            ->leftJoin('eqb.user', 'u')
+            ->where('u.id = :user_id');
+
+        $this->filterOptional($expenseFilterTransfer, $query);
+        $query->addGroupBy('u.id');
+        $query->addGroupBy('eqb.id');
+        $query->setParameter('user_id', $expenseFilterTransfer->getUserId());
+
+        return $query->getQuery()->getArrayResult();
+    }
+
+    /**
+     * @param \App\Transfer\ExpenseFilterTransfer $expenseFilterTransfer
      * @param \Doctrine\ORM\QueryBuilder $query
      *
      * @return void
@@ -127,13 +149,13 @@ final class ExpenseService implements ExpenseServiceInterface
 
         if ($expenseFilterTransfer->getStartDate() !== null) {
             $query
-                ->andWhere('eqb.created_at > :start_date')
+                ->andWhere('eqb.createdAt > :start_date')
                 ->setParameter("start_date", $expenseFilterTransfer->getStartDate());
         }
 
         if ($expenseFilterTransfer->getEndDate() !== null) {
             $query
-                ->andWhere('eqb.created_at < :end_date')
+                ->andWhere('eqb.createdAt < :end_date')
                 ->setParameter("end_date", $expenseFilterTransfer->getEndDate());
         }
     }

@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Entity\Category;
-use App\Entity\User;
 use App\Transfer\CategoryTransfer;
 use App\Transfer\PaginateTransfer;
 use App\Transfer\UserTransfer;
-use Doctrine\ORM\Tools\Pagination\Paginator;
 
 interface CategoryServiceInterface
 {

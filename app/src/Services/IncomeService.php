@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Entity\Income;
+use App\Transfer\IncomeFilterTransfer;
 use App\Transfer\IncomeTransfer;
 use App\Transfer\PaginateTransfer;
 use App\Transfer\UserTransfer;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 
 final class IncomeService implements IncomeServiceInterface
 {
@@ -62,5 +64,84 @@ final class IncomeService implements IncomeServiceInterface
             ->setMaxResults($paginateTransfer->getSize())
             ->getQuery()
             ->getArrayResult();
+    }
+
+    /**
+     * @param \App\Transfer\IncomeFilterTransfer $incomeFilterTransfer
+     * @param \App\Transfer\PaginateTransfer $paginateTransfer
+     *
+     * @return array
+     */
+    public function filter(IncomeFilterTransfer $incomeFilterTransfer, PaginateTransfer $paginateTransfer): array
+    {
+        $query =  $this->entityManager
+            ->getRepository(Income::class)
+            ->createQueryBuilder('eqb')
+            ->select('eqb', 'u')
+            ->leftJoin('eqb.user', 'u')
+            ->where('u.id = :user_id');
+
+        $this->filterOptional($incomeFilterTransfer, $query);
+
+        $query->setParameter('user_id', $incomeFilterTransfer->getUserId())
+            ->setFirstResult($paginateTransfer->getStart())
+            ->setMaxResults($paginateTransfer->getSize());
+
+        return $query->getQuery()->getArrayResult();
+    }
+
+    /**
+     * @param \App\Transfer\IncomeFilterTransfer $incomeFilterTransfer
+     *
+     * @return array
+     */
+    public function aggregate(IncomeFilterTransfer $incomeFilterTransfer): array
+    {
+        $query = $this->entityManager
+            ->getRepository(Income::class)
+            ->createQueryBuilder('eqb')
+            ->select('sum(eqb.amount) as amount_sum', 'eqb', 'u')
+            ->leftJoin('eqb.user', 'u')
+            ->where('u.id = :user_id');
+
+        $this->filterOptional($incomeFilterTransfer, $query);
+        $query->addGroupBy('u.id');
+        $query->addGroupBy('eqb.id');
+        $query->setParameter('user_id', $incomeFilterTransfer->getUserId());
+
+        return $query->getQuery()->getArrayResult();
+    }
+
+    /**
+     * @param \App\Transfer\IncomeFilterTransfer $incomeFilterTransfer
+     * @param \Doctrine\ORM\QueryBuilder $query
+     *
+     * @return void
+     */
+    private function filterOptional(IncomeFilterTransfer $incomeFilterTransfer, QueryBuilder $query): void
+    {
+        if ($incomeFilterTransfer->getAmountGrater() !== null) {
+            $query
+                ->andWhere('eqb.amount > :amountGrater')
+                ->setParameter("amountGrater", $incomeFilterTransfer->getAmountGrater());
+        }
+
+        if ($incomeFilterTransfer->getAmountLess() !== null) {
+            $query
+                ->andWhere('eqb.amount < :amountLess')
+                ->setParameter("amountLess", $incomeFilterTransfer->getAmountLess());
+        }
+
+        if ($incomeFilterTransfer->getStartDate() !== null) {
+            $query
+                ->andWhere('eqb.createdAt > :start_date')
+                ->setParameter("start_date", $incomeFilterTransfer->getStartDate());
+        }
+
+        if ($incomeFilterTransfer->getEndDate() !== null) {
+            $query
+                ->andWhere('eqb.createdAt < :end_date')
+                ->setParameter("end_date", $incomeFilterTransfer->getEndDate());
+        }
     }
 }

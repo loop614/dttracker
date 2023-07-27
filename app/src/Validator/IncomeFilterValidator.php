@@ -7,14 +7,13 @@ namespace App\Validator;
 use App\Core\Validator\ValidatorInterface;
 use App\Transfer\ValidationResponseTransfer;
 
-final class ExpenseFilterValidator implements ValidatorInterface
+final class IncomeFilterValidator implements ValidatorInterface
 {
     private const ANY_OF_REQUIRED_FIELDS = [
         "start_date",
         "end_date",
         "amount_greater",
-        "amount_less",
-        "category_id"
+        "amount_less"
     ];
 
     /**

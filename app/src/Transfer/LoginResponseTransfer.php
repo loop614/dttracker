@@ -50,6 +50,14 @@ final class LoginResponseTransfer
     }
 
     /**
+     * @return string[]
+     */
+    public function getErrors(): array
+    {
+        return $this->errors;
+    }
+
+    /**
      * @return \App\Transfer\UserTransfer
      */
     public function getUser(): UserTransfer

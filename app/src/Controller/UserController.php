@@ -36,7 +36,7 @@ class UserController extends AbstractCoreController
             ->createRegisterValidator($this->userService)
             ->validate($requestBody);
         if ($validationResponse->hasErrors()) {
-            throw new BadRequestHttpException();
+            throw new BadRequestHttpException($validationResponse->getErrors()[0]);
         }
 
         $userTransfer = new UserTransfer();
@@ -67,11 +67,11 @@ class UserController extends AbstractCoreController
         $userTransfer->setPassword($requestBody["password"]);
         $loginResponse = $this->userService->login($userTransfer);
         if ($loginResponse->hasErrors()) {
-            throw new BadRequestHttpException();
+            throw new BadRequestHttpException($loginResponse->getErrors()[0]);
         }
         $this->saveUserToSession($request, $loginResponse);
 
-        return new JsonResponse(["result" => "success", "token" => $loginResponse->getUser()->getToken()]);
+        return new JsonResponse(["result" => "success"]);
     }
 
     /**

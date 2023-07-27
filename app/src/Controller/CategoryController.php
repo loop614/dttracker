@@ -59,7 +59,7 @@ class CategoryController extends AbstractCoreController
         $requestArray = $request->toArray();
         $validationResponse = $this->validatorFactory->createCategoryValidator()->validate($request->toArray());
         if ($validationResponse->hasErrors()) {
-            throw new BadRequestHttpException(message: $validationResponse->errors[0]);
+            throw new BadRequestHttpException(message: $validationResponse->getErrors()[0]);
         }
         $categoryTransfer = new CategoryTransfer();
         $categoryTransfer->setName($requestArray["name"]);

@@ -25,6 +25,11 @@ migrate:
 	$(TRACKERCONSOLE) make:migration
 	$(TRACKERCONSOLE) doctrine:migrations:migrate
 
+nuke_db:
+	$(TRACKERCONSOLE) doctrine:schema:drop --force
+	$(TRACKERCONSOLE) doctrine:database:drop --force
+	$(TRACKERCONSOLE) doctrine:database:create
+
 init_test:
 	$(TRACKERCONSOLE) --env=test doctrine:database:create
 	$(TRACKERCONSOLE) --env=test doctrine:schema:create
@@ -33,7 +38,7 @@ test:
 	$(TRACKER) ./vendor/bin/phpunit
 
 temp:
-	$(TRACKER) php bin/console lexik:jwt:generate-keypair
+	$(TRACKERCOMPOSER) require symfony/security-bundle
 
 drop_db:
 	$(TRACKERCONSOLE)

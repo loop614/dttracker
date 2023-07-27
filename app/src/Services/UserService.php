@@ -85,7 +85,6 @@ final class UserService implements UserServiceInterface
         }
 
         $this->mapEntityToTransfer($user, $userTransfer = new UserTransfer());
-        $userTransfer->setToken(hash('sha256', (new DateTime())->format(getenv("DEFAULT_DATETIME_FORMAT"))));
         $loginResponse->setNow(new DateTimeImmutable());
         $loginResponse->setUser($userTransfer);
 

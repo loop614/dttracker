@@ -6,10 +6,9 @@ namespace App\Controller;
 
 use App\Core\Controller\AbstractCoreController;
 use App\Services\ExpenseServiceInterface;
-use App\Services\TokenServiceInterface;
 use App\Transfer\ExpenseFilterTransfer;
 use App\Transfer\ExpenseTransfer;
-use App\Transfer\PaginateTransfer;
+use App\Transfer\IncomeFilterTransfer;
 use App\Transfer\UserTransfer;
 use App\Validator\ValidatorFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,11 +23,9 @@ class ExpenseController extends AbstractCoreController
      * @param \App\Services\ExpenseService $expenseService
      */
     public function __construct(
-        private readonly TokenServiceInterface $tokenService,
         private readonly ValidatorFactoryInterface $validatorFactory,
         private readonly ExpenseServiceInterface $expenseService,
     ) {
-        parent::__construct($this->tokenService);
     }
 
     /**
@@ -64,7 +61,7 @@ class ExpenseController extends AbstractCoreController
         $requestBody = $request->toArray();
         $validationResponse = $this->validatorFactory->createExpenseValidator()->validate($requestBody);
         if ($validationResponse->hasErrors()) {
-            throw new BadRequestHttpException(message: $validationResponse->errors[0]);
+            throw new BadRequestHttpException(message: $validationResponse->getErrors()[0]);
         }
         $expenseTransfer = new ExpenseTransfer();
         $expenseTransfer->setCategoryId($requestBody["categoryId"]);
@@ -88,7 +85,7 @@ class ExpenseController extends AbstractCoreController
         $requestBody = $request->toArray();
         $validationResponse = $this->validatorFactory->createExpenseFilterValidator()->validate($requestBody);
         if ($validationResponse->hasErrors()) {
-            throw new BadRequestHttpException(message: $validationResponse->errors[0]);
+            throw new BadRequestHttpException(message: $validationResponse->getErrors()[0]);
         }
         $expenseTransfer = new ExpenseFilterTransfer();
         $expenseTransfer->setAmountGrater($requestBody["amount"]);
@@ -99,8 +96,7 @@ class ExpenseController extends AbstractCoreController
 
         return new JsonResponse(['expenses' => $expenses]);
     }
-
-
+    
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
      *
@@ -115,16 +111,30 @@ class ExpenseController extends AbstractCoreController
         $requestBody = $request->toArray();
         $validationResponse = $this->validatorFactory->createExpenseFilterValidator()->validate($requestBody);
         if ($validationResponse->hasErrors()) {
-            throw new BadRequestHttpException(message: $validationResponse->errors[0]);
+            throw new BadRequestHttpException(message: $validationResponse->getErrors()[0]);
         }
 
-        $expenseTransfer = new ExpenseFilterTransfer();
-        $expenseTransfer->setAmountGrater($requestBody["amount"]);
-        $expenseTransfer->setCategoryId((int) $requestBody["categoryId"]);
+        $expenseTransfer = $this->mapExpenseFilterTransfer($requestBody);
         $expenseTransfer->setUserId($this->getUserIdFromSession($request));
-        $paginateTransfer = $this->getPaginateTransfer($request);
-        $expenses = $this->expenseService->filter($expenseTransfer, $paginateTransfer);
+        $expenseAggregate = $this->expenseService->aggregate($expenseTransfer);
 
-        return new JsonResponse(['expenses' => $expenses]);
+        return new JsonResponse(['expense_aggregate' => $expenseAggregate]);
+    }
+
+    /**
+     * @param array $requestBody
+     *
+     * @return \App\Transfer\ExpenseFilterTransfer
+     */
+    private function mapExpenseFilterTransfer(array $requestBody): ExpenseFilterTransfer
+    {
+        $expenseTransfer = new ExpenseFilterTransfer();
+        $expenseTransfer->setAmountGrater($requestBody["amount_greater"] ?? null);
+        $expenseTransfer->setAmountLess($requestBody["amount_less"] ?? null);
+        $expenseTransfer->setEndDate($requestBody["end_date"] ?? null);
+        $expenseTransfer->setStartDate($requestBody["start_date"] ?? null);
+        $expenseTransfer->setCategoryId($requestBody["category_id"] ?? null);
+
+        return $expenseTransfer;
     }
 }

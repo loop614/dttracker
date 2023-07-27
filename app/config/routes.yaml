@@ -57,7 +57,7 @@ income_list:
     methods: GET
 
 income_filter:
-    path: /api/incomes
+    path: /api/income/filter
     controller: App\Controller\IncomeController::filter
     methods: GET
 

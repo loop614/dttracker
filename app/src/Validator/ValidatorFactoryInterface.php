@@ -40,4 +40,9 @@ interface ValidatorFactoryInterface
      * @return \App\Core\Validator\ValidatorInterface
      */
     public function createExpenseFilterValidator(): ValidatorInterface;
+
+    /**
+     * @return \App\Core\Validator\ValidatorInterface
+     */
+    public function createIncomeFilterValidator(): ValidatorInterface;
 }
