@@ -1,6 +1,6 @@
 TRACKER := docker compose exec php_tracker
 TRACKERCONSOLE := docker compose exec php_tracker php bin/console
-TRACKERCOMPOSER := docker compose exec php_tracker /userland/path/composer
+TRACKERCOMPOSER := docker compose exec php_tracker composer
 TRACKERCODECEPT := $(TRACKER) vendor/bin/codecept
 
 rebuild:
