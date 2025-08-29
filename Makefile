@@ -40,11 +40,8 @@ test:
 temp:
 	$(TRACKERCOMPOSER) require symfony/security-bundle
 
-drop_db:
-	$(TRACKERCONSOLE)
-
 composer_install:
-	$(TRACKERCOMPOSER) require miladrahimi/php-jwt "2.*"
+	$(TRACKERCOMPOSER) composer install
 
 cache:
 	$(TRACKERCOMPOSER) clear-cache
@@ -55,7 +52,6 @@ cache:
 
 skeleton:
 	$(TRACKERCOMPOSER) create-project symfony/skeleton:"6.4.x-dev" .
-
 
 sniffer:
 	$(TRACKER) vendor/bin/phpcs -p --extensions=php src/

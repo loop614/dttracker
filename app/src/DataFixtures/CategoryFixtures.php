@@ -9,7 +9,7 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
-class CategoryFixture extends Fixture implements DependentFixtureInterface
+class CategoryFixtures extends Fixture implements DependentFixtureInterface
 {
     public const FOOD_CATEGORY = 'FOOD_CATEGORY';
 
@@ -27,7 +27,8 @@ class CategoryFixture extends Fixture implements DependentFixtureInterface
         $category->setName("food");
         $category->setUser($user);
         $manager->persist($category);
-        $this->setReference(self::FOOD_CATEGORY, $category);
+        $manager->flush();
+        $this->setReference(self::FOOD_CATEGORY, object: $category);
 
         foreach (self::EXAMPLE_CATEGORIES as $exampleCategory) {
             $category = new Category();

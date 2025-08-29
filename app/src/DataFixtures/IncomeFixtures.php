@@ -10,7 +10,7 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
-class incomeFixture extends Fixture implements DependentFixtureInterface
+class IncomeFixtures extends Fixture implements DependentFixtureInterface
 {
     /**
      * @param \App\Services\IncomeServiceInterface $incomeService

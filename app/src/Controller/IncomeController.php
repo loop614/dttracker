@@ -34,10 +34,6 @@ class IncomeController extends AbstractCoreController
      */
     public function list(Request $request): JsonResponse
     {
-        if (!$this->isUserSessionValid($request)) {
-            throw new AuthenticationCredentialsNotFoundException();
-        }
-
         $userTransfer = new UserTransfer();
         $userTransfer->setId($this->getUserIdFromSession($request));
         $paginateTransfer = $this->getPaginateTransfer($request);
@@ -54,9 +50,6 @@ class IncomeController extends AbstractCoreController
      */
     public function add(Request $request): JsonResponse
     {
-        if (!$this->isUserSessionValid($request)) {
-            throw new AuthenticationCredentialsNotFoundException();
-        }
         $requestArray = $request->toArray();
         $validationResponse = $this->validatorFactory->createIncomeValidator()->validate($requestArray);
         if ($validationResponse->hasErrors()) {
@@ -78,10 +71,6 @@ class IncomeController extends AbstractCoreController
      */
     public function filter(Request $request): JsonResponse
     {
-        if (!$this->isUserSessionValid($request)) {
-            throw new AuthenticationCredentialsNotFoundException();
-        }
-
         $requestBody = $request->toArray();
         $validationResponse = $this->validatorFactory->createIncomeFilterValidator()->validate($requestBody);
         if ($validationResponse->hasErrors()) {
@@ -102,10 +91,6 @@ class IncomeController extends AbstractCoreController
      */
     public function aggregate(Request $request): JsonResponse
     {
-        if (!$this->isUserSessionValid($request)) {
-            throw new AuthenticationCredentialsNotFoundException();
-        }
-
         $requestBody = $request->toArray();
         $validationResponse = $this->validatorFactory->createExpenseFilterValidator()->validate($requestBody);
         if ($validationResponse->hasErrors()) {

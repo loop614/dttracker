@@ -25,24 +25,25 @@ final class IncomeService implements IncomeServiceInterface
     }
 
     /**
-     * @param \App\Transfer\IncomeTransfer $expenseTransfer
+     * @param \App\Transfer\IncomeTransfer $incomeTransfer
      *
      * @return \App\Entity\Income
      */
-    public function create(IncomeTransfer $expenseTransfer): Income
+    public function create(IncomeTransfer $incomeTransfer): Income
     {
-        $expense = new Income();
-        $user = $this->userService->getUserById($expenseTransfer->getUserId());
-        $expense->setUser($user);
-        $expense->setAmount($expenseTransfer->getAmount());
-        $expense->setDescription($expenseTransfer->getDescription());
+        $income = new Income();
+        $user = $this->userService->getUserById($incomeTransfer->getUserId());
+        $income->setUser($user);
+        $income->setAmount($incomeTransfer->getAmount());
+        $income->setDescription($incomeTransfer->getDescription());
+        $income->updateTimestamps();
 
-        $this->entityManager->persist($expense);
+        $this->entityManager->persist($income);
         $this->entityManager->flush();
 
-        $this->userService->updateBalance($user, $expenseTransfer->getAmount());
+        $this->userService->updateBalance($user, $incomeTransfer->getAmount());
 
-        return $expense;
+        return $income;
     }
 
     /**

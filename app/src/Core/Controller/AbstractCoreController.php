@@ -54,7 +54,6 @@ abstract class AbstractCoreController extends AbstractController
      */
     protected function saveUserToSession(Request $request, LoginResponseTransfer $loginResponse): void
     {
-        session_regenerate_id();
         $session = $request->getSession();
         $sessionData = [
             'userId' => $loginResponse->user->getId(),

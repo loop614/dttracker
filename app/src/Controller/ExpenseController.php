@@ -8,7 +8,6 @@ use App\Core\Controller\AbstractCoreController;
 use App\Services\ExpenseServiceInterface;
 use App\Transfer\ExpenseFilterTransfer;
 use App\Transfer\ExpenseTransfer;
-use App\Transfer\IncomeFilterTransfer;
 use App\Transfer\UserTransfer;
 use App\Validator\ValidatorFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -35,10 +34,6 @@ class ExpenseController extends AbstractCoreController
      */
     public function list(Request $request): JsonResponse
     {
-        if (!$this->isUserSessionValid($request)) {
-            throw new AuthenticationCredentialsNotFoundException();
-        }
-
         $userTransfer = new UserTransfer();
         $userTransfer->setId($this->getUserIdFromSession($request));
         $paginateTransfer = $this->getPaginateTransfer($request);
@@ -54,10 +49,6 @@ class ExpenseController extends AbstractCoreController
      */
     public function add(Request $request): JsonResponse
     {
-        if (!$this->isUserSessionValid($request)) {
-            throw new AuthenticationCredentialsNotFoundException();
-        }
-
         $requestBody = $request->toArray();
         $validationResponse = $this->validatorFactory->createExpenseValidator()->validate($requestBody);
         if ($validationResponse->hasErrors()) {
@@ -78,10 +69,6 @@ class ExpenseController extends AbstractCoreController
      */
     public function filter(Request $request): JsonResponse
     {
-        if (!$this->isUserSessionValid($request)) {
-            throw new AuthenticationCredentialsNotFoundException();
-        }
-
         $requestBody = $request->toArray();
         $validationResponse = $this->validatorFactory->createExpenseFilterValidator()->validate($requestBody);
         if ($validationResponse->hasErrors()) {
@@ -96,7 +83,7 @@ class ExpenseController extends AbstractCoreController
 
         return new JsonResponse(['expenses' => $expenses]);
     }
-    
+
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
      *
@@ -104,10 +91,6 @@ class ExpenseController extends AbstractCoreController
      */
     public function aggregate(Request $request): JsonResponse
     {
-        if (!$this->isUserSessionValid($request)) {
-            throw new AuthenticationCredentialsNotFoundException();
-        }
-
         $requestBody = $request->toArray();
         $validationResponse = $this->validatorFactory->createExpenseFilterValidator()->validate($requestBody);
         if ($validationResponse->hasErrors()) {

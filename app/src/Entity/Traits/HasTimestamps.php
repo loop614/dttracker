@@ -5,7 +5,6 @@ declare(strict_types = 1);
 namespace App\Entity\Traits;
 
 use DateTime;
-use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Mapping\Column;
 
 trait HasTimestamps
@@ -16,7 +15,7 @@ trait HasTimestamps
     #[Column(name: 'updated_at')]
     private DateTime $updatedAt;
 
-    public function updateTimestamps(PrePersistEventArgs $args): void
+    public function updateTimestamps(): void
     {
         if (! isset($this->createdAt)) {
             $this->createdAt = new DateTime();

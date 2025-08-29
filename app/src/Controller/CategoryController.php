@@ -33,10 +33,6 @@ class CategoryController extends AbstractCoreController
      */
     public function list(Request $request): JsonResponse
     {
-        if (!$this->isUserSessionValid($request)) {
-            throw new AuthenticationCredentialsNotFoundException();
-        }
-
         $userTransfer = new UserTransfer();
         $userTransfer->setId($this->getUserIdFromSession($request));
         $paginateTransfer = $this->getPaginateTransfer($request);
@@ -52,10 +48,6 @@ class CategoryController extends AbstractCoreController
      */
     public function add(Request $request): JsonResponse
     {
-        if (!$this->isUserSessionValid($request)) {
-            throw new AuthenticationCredentialsNotFoundException();
-        }
-
         $requestArray = $request->toArray();
         $validationResponse = $this->validatorFactory->createCategoryValidator()->validate($request->toArray());
         if ($validationResponse->hasErrors()) {
